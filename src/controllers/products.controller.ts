@@ -1,15 +1,15 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabaseClient.js";
 
-export const getAllProducts = async (req: Request, res: Response) => {
+export const getAllProducts = async (req: Request, res: Response, next:NextFunction) => {
   const { data, error } = await supabase.from("products").select("*");
   if (error) {
-    return res.status(500).json({ error: error.message });
+    return next(error);
   }
   return res.status(200).json(data);
 };
 
-export const getSpecificProduct = async (req: Request, res: Response) => {
+export const getSpecificProduct = async (req: Request, res: Response, next:NextFunction) => {
   const { id } = req.params;
   const { data, error } = await supabase
     .from("products")
@@ -18,7 +18,7 @@ export const getSpecificProduct = async (req: Request, res: Response) => {
     .maybeSingle();
 
   if (error) {
-    return res.status(500).json({ error: error.message });
+    return next(error);
   }
   if (!data) {
     return res.status(404).json({ error: `Product ${id} not found` });
@@ -26,7 +26,7 @@ export const getSpecificProduct = async (req: Request, res: Response) => {
   return res.status(200).json(data);
 };
 
-export const addNewProduct = async (req: Request, res: Response) => {
+export const addNewProduct = async (req: Request, res: Response, next:NextFunction) => {
   const { name, price } = req.body;
   if (!name) {
     return res.status(400).json({ error: "Name is required" });
@@ -42,12 +42,12 @@ export const addNewProduct = async (req: Request, res: Response) => {
     .single();
 
   if (error) {
-    return res.status(500).json({ error: error.message });
+    return next(error);
   }
   return res.status(201).json(data);
 };
 
-export const changeProduct = async (req: Request, res: Response) => {
+export const changeProduct = async (req: Request, res: Response, next:NextFunction) => {
   const { id } = req.params;
   const { data, error } = await supabase
     .from("products")
@@ -57,7 +57,7 @@ export const changeProduct = async (req: Request, res: Response) => {
     .maybeSingle();
 
   if (error) {
-    return res.status(500).json({ error: error.message });
+    return next(error);
   }
   if (!data) {
     return res.status(404).json({ error: `Product ${id} not found` });
@@ -66,7 +66,7 @@ export const changeProduct = async (req: Request, res: Response) => {
 };
 
 
-export const deleteSpecificProductId = async (req: Request, res: Response) => {
+export const deleteSpecificProductId = async (req: Request, res: Response, next:NextFunction) => {
   const { id } = req.params;
   const { data, error } = await supabase
     .from("products")
@@ -76,7 +76,7 @@ export const deleteSpecificProductId = async (req: Request, res: Response) => {
     .maybeSingle();
 
   if (error) {
-    return res.status(500).json({ error: error.message });
+    return next(error);
   }
   if (!data) {
     return res.status(404).json({ error: `Product ${id} not found` });
