@@ -40,7 +40,6 @@ export const getAllProducts = async (req: Request, res: Response, next:NextFunct
       
     query = query.range(start,end);
 
-
     const { data, error, count } = await query;
 
       if (error) {
