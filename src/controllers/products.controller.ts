@@ -27,14 +27,6 @@ export const getSpecificProduct = async (req: Request, res: Response, next:NextF
 };
 
 export const addNewProduct = async (req: Request, res: Response, next:NextFunction) => {
-  const { name, price } = req.body;
-  if (!name) {
-    return res.status(400).json({ error: "Name is required" });
-  }
-  if (price === undefined) {
-    return res.status(400).json({ error: "Price is required" });
-  }
-
   const { data, error } = await supabase
     .from("products")
     .insert(req.body)
