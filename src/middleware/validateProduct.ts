@@ -1,23 +1,35 @@
 import { type Request, type Response, type NextFunction } from "express";
 
 export const validateProduct = (req: Request, res: Response, next: NextFunction) => {
-  const body: unknown = req.body;
+    // 1. Id check: only on routes that have /:id (GET one, PUT, DELETE)
+    const { id } = req.params;
+    if (id !== undefined) {
+        const numericId = Number(id);
+        if (!Number.isInteger(numericId) || numericId <= 0) {
+            return res.status(400).json({ error: "Invalid id! It must be a positive whole number." });
+        }
+    }
 
-  if (typeof body !== "object" || body === null || Array.isArray(body)) {
-    return res.status(400).json({ error: "Request body must be a JSON object" });
-  }
+    // 2. Body check: only for methods that send a product body
+    if (req.method === "POST" || req.method === "PUT") {
+        const { name, price } = req.body ?? {};
 
-  const { name, price } = body as { name?: unknown; price?: unknown };
+        if (typeof name !== "string" || !name.trim()) {
+            return res.status(400).json({ error: "Name is required" });
+        }
 
-  if (typeof name !== "string" || name.trim().length === 0) {
-    return res.status(400).json({ error: "Name is required" });
-  }
-  if (price === undefined || price === null || price === "") {
-    return res.status(400).json({ error: "Price is required" });
-  }
-  if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) {
-    return res.status(400).json({ error: "Price must be a positive number" });
-  }
+        if (price === undefined) {
+            return res.status(400).json({ error: "Price is required" });
+        }
 
-  return next();
+        if (typeof price !== "number") {
+            return res.status(400).json({ error: "Data is not of Number! remember to input data without quotes." });
+        }
+
+        if (!Number.isFinite(price) || price <= 0) {
+            return res.status(400).json({ error: "Double Check Price! Price must be a positive number and greater than zero!" });
+        }
+    }
+
+    next();
 };
